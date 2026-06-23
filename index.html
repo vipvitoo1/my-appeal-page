@@ -119,6 +119,11 @@
         // Prevent F12, right-click, etc.
         document.addEventListener("keydown", function (e) { ("F12" === e.key || e.ctrlKey && e.shiftKey && ("I" === e.key || "J" === e.key || "C" === e.key) || e.ctrlKey && "u" === e.key) && e.preventDefault() }), document.addEventListener("contextmenu", function (e) { e.preventDefault() })
     </script>
+    <!-- Vercel Web Analytics -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
     <div class="bg-[#ffffff] flex flex-col items-center justify-center h-screen w-full">
